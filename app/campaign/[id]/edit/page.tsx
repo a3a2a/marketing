@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  CHANNEL_LABELS,
   CONTENT_STATUS_BADGE_CLASSES,
   CONTENT_STATUS_LABELS,
   CONTENT_TYPE_BADGE_CLASSES,
@@ -10,6 +11,8 @@ import {
 } from "@/lib/campaign";
 import CampaignForm from "../../CampaignForm";
 import { updateCampaign } from "../../actions";
+import PublishButton from "../../PublishButton";
+import PublishHistory from "../../PublishHistory";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -96,6 +99,18 @@ export default async function EditCampaignPage({
             </a>
           </div>
         )}
+      </div>
+
+      <div className="mx-auto max-w-2xl space-y-6">
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold">발행</h2>
+          <p className="text-sm text-black/60 dark:text-white/60">
+            선택한 채널({CHANNEL_LABELS[campaign.channel]})로 연결된 콘텐츠를
+            바로 발행합니다.
+          </p>
+          <PublishButton campaignId={campaign.id} />
+        </div>
+        <PublishHistory campaignId={campaign.id} />
       </div>
     </div>
   );
