@@ -49,6 +49,16 @@ enum CampaignStatus {
   PAUSED
 }
 
+// Outcome of a single email/SNS publish attempt for a campaign. This app has
+// no real email/SNS provider wired up, so PublishLog mostly records
+// SIMULATED attempts (what would have been sent) alongside any SENT/FAILED
+// results from a real provider integration, if one is added later.
+enum PublishMode {
+  SIMULATED
+  SENT
+  FAILED
+}
+
 // ---------------------------------------------------------------------------
 // Models
 // ---------------------------------------------------------------------------
@@ -89,5 +99,33 @@ model Campaign {
   contentDraftId String?
   contentDraft   ContentDraft? @relation(fields: [contentDraftId], references: [id])
 
+  // One Campaign can have many publish attempts (retries, per-channel logs, ...).
+  publishLogs PublishLog[]
+
   @@map("campaigns")
+}
+
+// A single-admin-account login credential. No roles/multi-tenant modeling —
+// this app only ever has one operator account.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  @@map("users")
+}
+
+// A record of one email/SNS publish attempt for a Campaign, e.g. from the
+// "발행" (publish) action in the campaign detail view.
+model PublishLog {
+  id         String      @id @default(cuid())
+  campaignId String
+  campaign   Campaign    @relation(fields: [campaignId], references: [id])
+  channel    String // e.g. EMAIL / SNS, matching CampaignChannel
+  mode       PublishMode
+  message    String // human-readable detail: what would have been sent, or the provider error
+  createdAt  DateTime    @default(now())
+
+  @@map("publish_logs")
 }
