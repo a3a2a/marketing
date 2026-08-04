@@ -40,7 +40,7 @@ export default function Home() {
           <Link
             key={mod.key}
             href={mod.href}
-            className="flex flex-col gap-2 rounded-lg border border-black/10 p-5 transition-colors hover:border-black/30 hover:bg-black/[.02] dark:border-white/15 dark:hover:border-white/30 dark:hover:bg-white/[.04]"
+            className="flex flex-col gap-2 rounded-lg border border-black/10 bg-white p-5 transition-colors hover:border-black/30 hover:bg-black/[.02] dark:border-white/10 dark:bg-black dark:hover:border-white/30 dark:hover:bg-white/[.04]"
           >
             <h2 className="text-lg font-medium">{mod.name}</h2>
             <p className="text-sm text-black/60 dark:text-white/60">
