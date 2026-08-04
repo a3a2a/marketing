@@ -1,0 +1,93 @@
+// Prisma schema for the marketing app.
+// Datasource: local SQLite file (prisma/dev.db) so the app runs fully offline.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  // Hardcoded (rather than env()) so the project runs fully offline with
+  // zero setup right after `git clone && npm install` — no .env file needed.
+  url      = "file:./dev.db"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum ContentType {
+  BLOG
+  SNS
+  EMAIL
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ContentTone {
+  FRIENDLY
+  PROFESSIONAL
+  HUMOROUS
+  TRUSTWORTHY
+}
+
+enum CampaignChannel {
+  BLOG
+  SNS
+  EMAIL
+  ETC
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  PAUSED
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+// A single piece of generated/edited marketing content (blog post, SNS post,
+// email, ...). Produced by the "AI content generation" module (a
+// deterministic, in-process template generator — no external AI API calls).
+model ContentDraft {
+  id        String        @id @default(cuid())
+  title     String
+  type      ContentType
+  product   String // product/service name input
+  audience  String // target audience input
+  tone      ContentTone
+  keywords  String? // optional key message / keywords input
+  body      String // generated/edited draft copy
+  status    ContentStatus @default(DRAFT)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // One ContentDraft can be linked from multiple Campaigns.
+  campaigns Campaign[]
+
+  @@map("content_drafts")
+}
+
+// A marketing campaign that may optionally link back to a ContentDraft.
+model Campaign {
+  id            String          @id @default(cuid())
+  name          String
+  channel       CampaignChannel
+  status        CampaignStatus  @default(DRAFT)
+  scheduledDate DateTime
+  notes         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  contentDraftId String?
+  contentDraft   ContentDraft? @relation(fields: [contentDraftId], references: [id])
+
+  @@map("campaigns")
+}
