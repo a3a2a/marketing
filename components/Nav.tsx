@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { logout } from "@/app/login/actions";
 
 // Nav items live here (not in app/layout.tsx) so feature-building agents can
 // add pages under each module route without ever touching the shared layout.
@@ -12,8 +14,25 @@ const navItems: { label: string; href: string }[] = [
   { label: "리포트", href: "/report" },
 ];
 
+// Must match auth/session.ts's DISPLAY_COOKIE_NAME. Kept as a local literal
+// (rather than importing that module) so this client component never pulls
+// in any session-signing code — it only ever reads this plain display value.
+const DISPLAY_COOKIE_NAME = "session_user";
+
+function readDisplayEmail(): string | null {
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${DISPLAY_COOKIE_NAME}=`));
+  return match ? decodeURIComponent(match.slice(DISPLAY_COOKIE_NAME.length + 1)) : null;
+}
+
 export default function Nav() {
   const pathname = usePathname();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    setUserEmail(readDisplayEmail());
+  }, [pathname]);
 
   return (
     <header className="border-b border-black/10 bg-white dark:border-white/10 dark:bg-black">
@@ -45,6 +64,22 @@ export default function Nav() {
             );
           })}
         </ul>
+
+        {userEmail && (
+          <div className="ml-auto flex shrink-0 items-center gap-3">
+            <span className="hidden text-sm text-black/60 sm:inline dark:text-white/60">
+              {userEmail}
+            </span>
+            <form action={logout}>
+              <button
+                type="submit"
+                className="rounded-md border border-black/15 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+              >
+                로그아웃
+              </button>
+            </form>
+          </div>
+        )}
       </nav>
     </header>
   );
