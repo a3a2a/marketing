@@ -10,7 +10,7 @@ function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const session = await verifySessionToken(token);
